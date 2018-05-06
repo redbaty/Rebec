@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27701.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebec", "Rebec\Rebec.csproj", "{14805222-C02F-4BCD-AB7D-417E3B170FBF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rebec", "Rebec\Rebec.csproj", "{14805222-C02F-4BCD-AB7D-417E3B170FBF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebec.Sample", "Rebec.Sample\Rebec.Sample.csproj", "{804ED6C3-DD36-45EF-A684-5D55D02FA015}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rebec.Sample", "Rebec.Sample\Rebec.Sample.csproj", "{804ED6C3-DD36-45EF-A684-5D55D02FA015}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
