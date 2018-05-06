@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading.Tasks;
 using AngleSharp;
 using AngleSharp.Dom;
 using AngleSharp.Dom.Html;
@@ -46,7 +47,7 @@ namespace Rebec.Builders
             return this;
         }
 
-        public async void Build()
+        public async Task<IReportResult> Build()
         {
             var context = BrowsingContext.New();
             var document = await context.OpenNewAsync();
@@ -55,11 +56,12 @@ namespace Rebec.Builders
             {
                 AddHeader(document, headElement);
                 AddCss(document, headElement);
-
-                foreach (var builder in Builders) document.Body.AppendChild(builder.Build());
             }
 
-            var html = document.DocumentElement.OuterHtml;
+            foreach (var builder in Builders)
+                document.Body.AppendChild(builder.Build());
+
+            return new ReportResult(document.DocumentElement.OuterHtml, this);
         }
 
 
