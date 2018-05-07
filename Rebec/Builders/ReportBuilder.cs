@@ -13,12 +13,28 @@ namespace Rebec.Builders
     public class ReportBuilder : IReportBuilderContext
     {
         public IList<IBuilder> Builders { get; } = new List<IBuilder>();
-        public string Title { get; private set; }
+
         public string Css { get; private set; }
+
+        public string Title { get; private set; }
 
         public ReportBuilder WithTitle(string title)
         {
             Title = title;
+            return this;
+        }
+
+        public ReportBuilder TryUseCss(string url)
+        {
+            try
+            {
+                Css = new WebClient().DownloadString(url);
+            }
+            catch
+            {
+                // ignored
+            }
+
             return this;
         }
 
@@ -27,7 +43,6 @@ namespace Rebec.Builders
             Css = new WebClient().DownloadString(url);
             return this;
         }
-
 
         public ReportBuilder WithCss(string css)
         {
@@ -47,23 +62,24 @@ namespace Rebec.Builders
             return this;
         }
 
-        public async Task<IReportResult> Build()
+        public Task<IReportResult> Build()
         {
-            var context = BrowsingContext.New();
-            var document = await context.OpenNewAsync();
-
-            if (document.Head is IHtmlHeadElement headElement)
+            return Task.Run(async () =>
             {
-                AddHeader(document, headElement);
-                AddCss(document, headElement);
-            }
+                var document = await BrowsingContext.New().OpenNewAsync();
 
-            foreach (var builder in Builders)
-                document.Body.AppendChild(builder.Build());
+                if (document.Head is IHtmlHeadElement headElement)
+                {
+                    AddHeader(document, headElement);
+                    AddCss(document, headElement);
+                }
 
-            return new ReportResult(document.DocumentElement.OuterHtml, this);
+                foreach (var builder in Builders)
+                    document.Body.AppendChild(builder.Build());
+
+                return new ReportResult(document.DocumentElement.OuterHtml, this) as IReportResult;
+            });
         }
-
 
         private void AddCss(IDocument document, INode htmlHeadElement)
         {

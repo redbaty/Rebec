@@ -20,8 +20,9 @@ namespace Rebec.Builders
             return htmlParagraphElement;
         }
 
-        public string Text { get; private set; }
         public IBuilderStyle Style { get; private set; }
+
+        public string Text { get; private set; }
 
         public TextBuilder WithText(string text)
         {

@@ -1,15 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
-using Rebec.Interfaces;
+using Rebec.Representations;
 
-namespace Rebec.Builders
+namespace Rebec.Interfaces
 {
     public interface ITableBuilderContext
     {
+        ICollection<ColumnRepresentation> Columns { get; }
+
         ICollection Objects { get; }
-        ICollection<string> Columns { get; }
-        ICollection<PropertyInfo> Properties { get; }
+
         IBuilderStyle Style { get; }
     }
 }

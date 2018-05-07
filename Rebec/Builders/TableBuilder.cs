@@ -8,6 +8,7 @@ using AngleSharp.Dom.Html;
 using AngleSharp.Extensions;
 using AngleSharp.Parser.Html;
 using Rebec.Interfaces;
+using Rebec.Representations;
 
 namespace Rebec.Builders
 {
@@ -18,10 +19,19 @@ namespace Rebec.Builders
             return CreateTable(Style);
         }
 
+        public ICollection<ColumnRepresentation> Columns { get; } = new List<ColumnRepresentation>();
+
         public ICollection Objects { get; private set; }
-        public ICollection<string> Columns { get; } = new List<string>();
-        public ICollection<PropertyInfo> Properties { get; } = new List<PropertyInfo>();
+
         public IBuilderStyle Style { get; private set; }
+
+        private IList<string> AdditionalRows { get; } = new List<string>();
+
+        public TableBuilder WithAdditionalRow(string row)
+        {
+            AdditionalRows.Add(row);
+            return this;
+        }
 
         public TableBuilder WithItems<T>(IEnumerable<T> enumerable)
         {
@@ -29,16 +39,33 @@ namespace Rebec.Builders
             return this;
         }
 
-        public TableBuilder WithColumn(string column)
+        public TableBuilder WithColumn(string column, PropertyInfo propertyInfo)
         {
-            Columns.Add(column);
+            Columns.Add(new ColumnRepresentation(column, propertyInfo));
             return this;
         }
 
-        public TableBuilder WithColumns(params string[] columns)
+        public TableBuilder WithComputedColumn(string column, Func<object, string> action)
+        {
+            Columns.Add(new ColumnRepresentation(column, action));
+            return this;
+        }
+
+        public TableBuilder WithComputedColumn<T>(string column, Func<T, string> action)
+        {
+            Columns.Add(new ColumnRepresentation(column, obj =>
+            {
+                if (obj is T t) return action.Invoke(t);
+
+                return string.Empty;
+            }));
+            return this;
+        }
+
+        public TableBuilder WithColumns(PropertyInfo propertyInfo, params string[] columns)
         {
             foreach (var column in columns)
-                Columns.Add(column);
+                Columns.Add(new ColumnRepresentation(column, propertyInfo));
 
             return this;
         }
@@ -49,21 +76,8 @@ namespace Rebec.Builders
 
             if (type == null) throw new InvalidOperationException("Could not find the IEnumerable object type");
 
-            Properties.Clear();
-
             foreach (var propertyInfo in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
-            {
-                Properties.Add(propertyInfo);
-                WithColumn(propertyInfo.Name);
-            }
-
-            return this;
-        }
-
-        public TableBuilder WithColumns(IEnumerable<string> columns)
-        {
-            foreach (var column in columns)
-                Columns.Add(column);
+                WithColumn(propertyInfo.Name, propertyInfo);
 
             return this;
         }
@@ -93,20 +107,29 @@ namespace Rebec.Builders
         {
             var htmlTableSectionElement = tableElement.CreateBody();
 
-            foreach (var o in Objects)
+            foreach (var obj in Objects)
             {
                 var row = htmlTableSectionElement.InsertRowAt();
 
-                foreach (var propertyInfo in Properties)
-                    row.InsertCellAt().InnerHtml = propertyInfo.GetValue(o).ToString();
+                foreach (var column in Columns)
+                    row.InsertCellAt().InnerHtml = column.IsComputed && column.ComputedAction != null
+                        ? column.ComputedAction.Invoke(obj)
+                        : column.RefersTo.GetValue(obj).ToString();
+            }
+
+            foreach (var additionalRow in AdditionalRows)
+            {
+                var parser = new HtmlParser();
+                var row = parser.ParseFragment(additionalRow, tableElement).FirstOrDefault()?.FirstChild;
+                htmlTableSectionElement.AppendChild(row);
             }
         }
 
         private void CreateColumns(IHtmlTableElement tableElement)
         {
-            var htmlTableRowElement = tableElement.CreateHead().InsertRowAt(0);
+            var htmlTableRowElement = tableElement.CreateHead().InsertRowAt();
 
-            foreach (var column in Columns) htmlTableRowElement.InsertCellAt().InnerHtml = column;
+            foreach (var column in Columns) htmlTableRowElement.InsertCellAt().InnerHtml = column.ToString();
         }
     }
 }
