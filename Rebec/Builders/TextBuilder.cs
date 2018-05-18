@@ -16,13 +16,13 @@ namespace Rebec.Builders
             var htmlParagraphElement = new HtmlParser().Parse(string.Empty)
                 .CreateElement<IHtmlParagraphElement>().WithInnerHtml(Text);
 
-            if (Style.Any(i => i.IsInline))
-                htmlParagraphElement.SetAttribute("style",
-                    Style.Where(i => i.IsInline).Select(i => i.Class).Aggregate((x, y) => $"{x};{y}"));
-
             if (Style.Any(i => !i.IsInline))
                 htmlParagraphElement.SetAttribute("class",
                     Style.Where(i => !i.IsInline).Select(i => i.Class).Aggregate((x, y) => $"{x};{y}"));
+
+            if (Style.Any(i => i.IsInline))
+                htmlParagraphElement.SetAttribute("style",
+                    Style.Where(i => i.IsInline).Select(i => i.Class).Aggregate((x, y) => $"{x};{y}"));
 
             return htmlParagraphElement;
         }

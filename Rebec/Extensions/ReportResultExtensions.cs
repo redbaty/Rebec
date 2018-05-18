@@ -9,12 +9,12 @@ namespace Rebec.Extensions
     {
         public static void SaveAsHtml(this IReportResult reportResult, FileInfo fileInfo)
         {
-            File.WriteAllText(reportResult.Html, fileInfo.FullName);
+            File.WriteAllText(fileInfo.FullName, reportResult.Html);
         }
 
         public static void SaveAsHtml(this IReportResult reportResult, string path)
         {
-            File.WriteAllText(reportResult.Html, path);
+            File.WriteAllText(path, reportResult.Html);
         }
 
         public static void SaveAsPdf(this IReportResult reportResult, string path)
