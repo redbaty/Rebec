@@ -1,4 +1,6 @@
-﻿using AngleSharp.Dom;
+﻿using System.Collections.Generic;
+using System.Linq;
+using AngleSharp.Dom;
 using AngleSharp.Dom.Html;
 using AngleSharp.Extensions;
 using AngleSharp.Parser.Html;
@@ -14,13 +16,18 @@ namespace Rebec.Builders
             var htmlParagraphElement = new HtmlParser().Parse(string.Empty)
                 .CreateElement<IHtmlParagraphElement>().WithInnerHtml(Text);
 
-            if (!string.IsNullOrEmpty(Style?.Class))
-                htmlParagraphElement.SetAttribute("class", Style.Class);
+            if (Style.Any(i => i.IsInline))
+                htmlParagraphElement.SetAttribute("style",
+                    Style.Where(i => i.IsInline).Select(i => i.Class).Aggregate((x, y) => $"{x};{y}"));
+
+            if (Style.Any(i => !i.IsInline))
+                htmlParagraphElement.SetAttribute("class",
+                    Style.Where(i => !i.IsInline).Select(i => i.Class).Aggregate((x, y) => $"{x};{y}"));
 
             return htmlParagraphElement;
         }
 
-        public IBuilderStyle Style { get; private set; }
+        public List<IBuilderStyle> Style { get; private set; } = new List<IBuilderStyle>();
 
         public string Text { get; private set; }
 
@@ -32,7 +39,7 @@ namespace Rebec.Builders
 
         public TextBuilder WithStyle(IBuilderStyle style)
         {
-            Style = style;
+            Style.Add(style);
             return this;
         }
     }
