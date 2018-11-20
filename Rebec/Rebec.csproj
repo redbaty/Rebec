@@ -3,10 +3,10 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="0.9.9.2" />
-    <PackageReference Include="itext7" Version="7.1.2" />
-    <PackageReference Include="itext7.pdfhtml" Version="2.0.2" />
+    <PackageReference Include="AngleSharp" Version="0.9.10" />
+    <PackageReference Include="itext7" Version="7.1.4" />
+    <PackageReference Include="itext7.pdfhtml" Version="2.1.1" />
     <PackageReference Include="LazyCache" Version="2.0.0-beta02" />
-    <PackageReference Include="morelinq" Version="2.10.0" />
+    <PackageReference Include="morelinq" Version="3.0.0" />
   </ItemGroup>
 </Project>

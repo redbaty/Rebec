@@ -4,10 +4,10 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Bogus" Version="22.0.8" />
-    <PackageReference Include="itext7" Version="7.1.2" />
-    <PackageReference Include="itext7.pdfhtml" Version="2.0.2" />
-    <PackageReference Include="Nanoid" Version="1.0.0" />
+    <PackageReference Include="Bogus" Version="24.3.1" />
+    <PackageReference Include="itext7" Version="7.1.4" />
+    <PackageReference Include="itext7.pdfhtml" Version="2.1.1" />
+    <PackageReference Include="Nanoid" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Rebec\Rebec.csproj" />

@@ -22,6 +22,14 @@ namespace Rebec.Extensions
             HtmlConverter.ConvertToPdf(reportResult.Html, new PdfWriter(path));
         }
 
+        public static MemoryStream SaveAsPdfStream(this IReportResult reportResult)
+        {
+            var stream = new MemoryStream();
+            HtmlConverter.ConvertToPdf(reportResult.Html, new PdfWriter(stream));
+            stream.Seek(0, SeekOrigin.Begin);
+            return stream;
+        }
+
         public static void SaveAsPdf(this IReportResult reportResult, FileInfo fileInfo)
         {
             SaveAsPdf(reportResult, fileInfo.FullName);
