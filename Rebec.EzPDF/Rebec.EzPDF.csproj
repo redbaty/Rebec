@@ -2,6 +2,9 @@
 
     <PropertyGroup>
         <TargetFramework>netcoreapp3.1</TargetFramework>
+        <PackageVersion>1.0.1</PackageVersion>
+        <Authors>Marcos Cordeiro</Authors>
+        <PackageProjectUrl>https://github.com/redbaty/Rebec</PackageProjectUrl>
     </PropertyGroup>
 
     <ItemGroup>

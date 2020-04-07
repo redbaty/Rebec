@@ -1,12 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="0.14.0" />
-    <PackageReference Include="DinkToPdfIncludesDependencies" Version="1.0.8" />
-    <PackageReference Include="LazyCache" Version="2.0.4" />
-    <PackageReference Include="morelinq" Version="3.3.2" />
-  </ItemGroup>
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <PackageVersion>1.0.1</PackageVersion>
+        <Authors>Marcos Cordeiro</Authors>
+        <PackageProjectUrl>https://github.com/redbaty/Rebec</PackageProjectUrl>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="AngleSharp" Version="0.14.0"/>
+    </ItemGroup>
 </Project>
