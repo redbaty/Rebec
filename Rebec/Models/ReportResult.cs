@@ -1,6 +1,7 @@
-﻿using Rebec.Interfaces;
+﻿using Rebec.Builders;
+using Rebec.Interfaces;
 
-namespace Rebec.Builders
+namespace Rebec.Models
 {
     internal class ReportResult : IReportResult
     {

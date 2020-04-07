@@ -1,7 +1,6 @@
 ﻿using AngleSharp.Dom;
-using AngleSharp.Dom.Html;
-using AngleSharp.Extensions;
-using AngleSharp.Parser.Html;
+using AngleSharp.Html.Dom;
+using AngleSharp.Html.Parser;
 using Rebec.Interfaces;
 
 namespace Rebec.Builders
@@ -12,7 +11,7 @@ namespace Rebec.Builders
         public IElement Build()
         {
             var parser = new HtmlParser();
-            var document = parser.Parse(string.Empty);
+            var document = parser.ParseDocument(string.Empty);
             return document.CreateElement<IHtmlHrElement>();
         }
     }

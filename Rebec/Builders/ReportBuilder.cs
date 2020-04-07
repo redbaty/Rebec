@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using AngleSharp;
 using AngleSharp.Dom;
-using AngleSharp.Dom.Html;
-using AngleSharp.Extensions;
+using AngleSharp.Html.Dom;
 using Rebec.Interfaces;
+using Rebec.Models;
 
 namespace Rebec.Builders
 {
@@ -14,7 +16,11 @@ namespace Rebec.Builders
     {
         public IList<IBuilder> Builders { get; } = new List<IBuilder>();
 
-        public string Css { get; private set; }
+        public HashSet<string> Css { get; } = new HashSet<string>();
+
+        public HashSet<string> HeaderScripts { get; } = new HashSet<string>();
+
+        public HashSet<string> BodyScripts { get; } = new HashSet<string>();
 
         public string Title { get; private set; }
 
@@ -26,27 +32,53 @@ namespace Rebec.Builders
 
         public ReportBuilder TryUseCss(string url)
         {
-            try
-            {
-                Css = new WebClient().DownloadString(url);
-            }
-            catch
-            {
-                // ignored
-            }
+            using var client = CreateClient();
+            var cssText = client.GetStringAsync(url).ContinueWith(t => t.IsCompletedSuccessfully ? t.Result : null)
+                .Result;
+
+            if (!string.IsNullOrEmpty(cssText))
+                Css.Add(cssText);
 
             return this;
         }
 
-        public ReportBuilder UseCss(string url)
+        public ReportBuilder TryUseHeaderScript(string url)
         {
-            Css = new WebClient().DownloadString(url);
+            using var client = CreateClient();
+            var scriptText = client.GetStringAsync(url).ContinueWith(t => t.IsCompletedSuccessfully ? t.Result : null)
+                .Result;
+
+            if (!string.IsNullOrEmpty(scriptText))
+                HeaderScripts.Add(scriptText);
+
             return this;
         }
+
+        private static HttpClient CreateClient()
+        {
+            return new HttpClient(new HttpClientHandler
+            {
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+            });
+        }
+
+        public ReportBuilder TryUseBodyScript(string url)
+        {
+            using var client = CreateClient();
+            var scriptText = client.GetStringAsync(url).ContinueWith(t => t.IsCompletedSuccessfully ? t.Result : null)
+                .Result;
+
+            if (!string.IsNullOrEmpty(scriptText))
+                BodyScripts.Add(scriptText);
+
+            return this;
+        }
+
 
         public ReportBuilder WithCss(string css)
         {
-            Css = css;
+            if (!string.IsNullOrEmpty(css))
+                Css.Add(css);
             return this;
         }
 
@@ -68,24 +100,40 @@ namespace Rebec.Builders
             {
                 var document = await BrowsingContext.New().OpenNewAsync();
 
-                if (document.Head is IHtmlHeadElement headElement)
+                if (document.Head is { } headElement)
                 {
                     AddHeader(document, headElement);
                     AddCss(document, headElement);
+                    AddScripts(document, headElement, HeaderScripts);
                 }
 
                 foreach (var builder in Builders)
                     document.Body.AppendChild(builder.Build());
 
+                AddScripts(document, document.Body, BodyScripts);
                 return new ReportResult(document.DocumentElement.OuterHtml, this) as IReportResult;
             });
         }
 
+        private static void AddScripts(IDocument document, INode htmlHeadElement, IEnumerable<string> scripts)
+        {
+            foreach (var script in scripts)
+            {
+                var scriptElement = document.CreateElement<IHtmlScriptElement>();
+                scriptElement.InnerHtml = script;
+                htmlHeadElement.AppendElement(scriptElement);
+            }
+        }
+
+
         private void AddCss(IDocument document, INode htmlHeadElement)
         {
-            var styleElement = document.CreateElement<IHtmlStyleElement>();
-            styleElement.InnerHtml = Css;
-            htmlHeadElement.AppendElement(styleElement);
+            foreach (var cssText in Css)
+            {
+                var styleElement = document.CreateElement<IHtmlStyleElement>();
+                styleElement.InnerHtml = cssText;
+                htmlHeadElement.AppendElement(styleElement);
+            }
         }
 
         private void AddHeader(IDocument document, INode htmlHeadElement)

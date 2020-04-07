@@ -1,6 +1,8 @@
-﻿using System.IO;
-using iText.Html2pdf;
-using iText.Kernel.Pdf;
+﻿using System;
+using System.IO;
+using System.Text;
+using System.Threading.Tasks;
+using DinkToPdf;
 using Rebec.Interfaces;
 
 namespace Rebec.Extensions
@@ -14,34 +16,21 @@ namespace Rebec.Extensions
 
         public static void SaveAsHtml(this IReportResult reportResult, string path)
         {
-            File.WriteAllText(path, reportResult.Html);
+            File.WriteAllText(path, reportResult.Html, Encoding.UTF8);
         }
 
-        public static void SaveAsPdf(this IReportResult reportResult, string path)
+        public static async Task SaveAsPdf<T>(this IReportResult reportResult, string path) where T: IHtmlRenderer
         {
-            HtmlConverter.ConvertToPdf(reportResult.Html, new PdfWriter(path));
+            var rendererInstance = Activator.CreateInstance<T>();
+            var retorno = await rendererInstance.RenderHtml(reportResult);
+            
+            var fileStream = File.OpenWrite(path);
+            fileStream.Write(retorno);
         }
 
-        public static MemoryStream SaveAsPdfStream(this IReportResult reportResult)
+        public static Task SaveAsPdf<T>(this IReportResult reportResult, FileInfo fileInfo) where T : IHtmlRenderer
         {
-            var stream = new MemoryStream();
-            HtmlConverter.ConvertToPdf(reportResult.Html, new PdfWriter(stream));
-            stream.Seek(0, SeekOrigin.Begin);
-            return stream;
-        }
-
-        public static void SaveAsPdf(this IReportResult reportResult, FileInfo fileInfo)
-        {
-            SaveAsPdf(reportResult, fileInfo.FullName);
-        }
-
-        public static MemoryStream GetPdfStream(this IReportResult reportResult)
-        {
-            using (var stream = new MemoryStream())
-            {
-                HtmlConverter.ConvertToPdf(reportResult.Html, new PdfWriter(stream));
-                return stream;
-            }
+            return SaveAsPdf<T>(reportResult, fileInfo.FullName);
         }
     }
 }

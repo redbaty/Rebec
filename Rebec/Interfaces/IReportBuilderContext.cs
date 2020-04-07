@@ -6,7 +6,7 @@ namespace Rebec.Interfaces
     {
         IList<IBuilder> Builders { get; }
 
-        string Css { get; }
+        HashSet<string> Css { get; }
 
         string Title { get; }
     }

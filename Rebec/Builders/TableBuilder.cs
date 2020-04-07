@@ -4,9 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using AngleSharp.Dom;
-using AngleSharp.Dom.Html;
-using AngleSharp.Extensions;
-using AngleSharp.Parser.Html;
+using AngleSharp.Html.Dom;
+using AngleSharp.Html.Parser;
 using Rebec.Interfaces;
 using Rebec.Representations;
 
@@ -19,7 +18,7 @@ namespace Rebec.Builders
             return CreateTable(Style);
         }
 
-        public ICollection<ColumnRepresentation> Columns { get; } = new List<ColumnRepresentation>();
+        public ICollection<ColumnRepresentation> Columns { get; } = new HashSet<ColumnRepresentation>();
 
         public ICollection Objects { get; private set; }
 
@@ -41,6 +40,10 @@ namespace Rebec.Builders
 
         public TableBuilder WithColumn(string column, PropertyInfo propertyInfo)
         {
+            var existingColumn = Columns.SingleOrDefault(i => i.RefersTo == propertyInfo);
+
+            if (existingColumn != null) Columns.Remove(existingColumn);
+
             Columns.Add(new ColumnRepresentation(column, propertyInfo));
             return this;
         }
@@ -65,7 +68,7 @@ namespace Rebec.Builders
         public TableBuilder WithColumns(PropertyInfo propertyInfo, params string[] columns)
         {
             foreach (var column in columns)
-                Columns.Add(new ColumnRepresentation(column, propertyInfo));
+                WithColumn(column, propertyInfo);
 
             return this;
         }
@@ -91,7 +94,7 @@ namespace Rebec.Builders
         private IHtmlTableElement CreateTable(IBuilderStyle styling = null)
         {
             var parser = new HtmlParser();
-            var document = parser.Parse(string.Empty);
+            var document = parser.ParseDocument(string.Empty);
 
             var tableElement = document.CreateElement<IHtmlTableElement>();
             CreateColumns(tableElement);

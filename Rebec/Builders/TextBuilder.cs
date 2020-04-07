@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using AngleSharp.Dom;
-using AngleSharp.Dom.Html;
-using AngleSharp.Extensions;
-using AngleSharp.Parser.Html;
+using AngleSharp.Html.Dom;
+using AngleSharp.Html.Parser;
 using Rebec.Extensions;
 using Rebec.Interfaces;
 
@@ -13,7 +12,7 @@ namespace Rebec.Builders
     {
         public IElement Build()
         {
-            var htmlParagraphElement = new HtmlParser().Parse(string.Empty)
+            var htmlParagraphElement = new HtmlParser().ParseDocument(string.Empty)
                 .CreateElement<IHtmlParagraphElement>().WithInnerHtml(Text);
 
             if (Style.Any(i => !i.IsInline))
@@ -27,7 +26,7 @@ namespace Rebec.Builders
             return htmlParagraphElement;
         }
 
-        public List<IBuilderStyle> Style { get; private set; } = new List<IBuilderStyle>();
+        public List<IBuilderStyle> Style { get; } = new List<IBuilderStyle>();
 
         public string Text { get; private set; }
 
